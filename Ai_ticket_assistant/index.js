@@ -11,6 +11,13 @@ app.use(express.json());
 
 const PORT = process.env.PORT ?? 8000;
 
+
+// Import routes
+import userRoutes from "./routes/user.js";
+
+app.use("/api/auth", userRoutes);
+
+
 connect_DB()
   .then(() => {
     app.listen(PORT, () => {

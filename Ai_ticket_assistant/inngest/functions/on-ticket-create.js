@@ -2,7 +2,7 @@ import { inngest } from "../client.js";
 import { NonRetriableError } from "inngest";
 import Ticket from "../../models/ticket.js";
 import User from "../../models/user.js";
-import analyzeTicket from "../../utils/ai-Agent";
+import analyzeTicket from "../../utils/ai-Agent.js";
 
 export const onTicketCreated = inngest.createFunction(
   { id: "on-ticket-created", retries: 3 },

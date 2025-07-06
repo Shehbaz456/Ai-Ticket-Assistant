@@ -1,6 +1,4 @@
-import e from "cors";
 import mongoose from "mongoose";
-import { assign } from "nodemailer/lib/shared";
 
 const ticketSchema = new mongoose.Schema({
   title: String,

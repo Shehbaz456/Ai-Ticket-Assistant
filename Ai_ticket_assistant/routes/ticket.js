@@ -1,5 +1,6 @@
 import express from "express";
-import { isAuthenticated } from "../middlewares/auth";
+import { isAuthenticated } from "../middlewares/auth.js";
+import { createTicket,getTicket,getTickets } from "../controllers/ticket.js"
 const router = express.Router();
 
 router.use(isAuthenticated);

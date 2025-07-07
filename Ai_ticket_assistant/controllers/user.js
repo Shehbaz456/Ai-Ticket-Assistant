@@ -5,25 +5,29 @@ import { inngest } from "../inngest/client.js";
 
 
 export const signup = async (req, res) => {
-  const { email, password, skills = [] } = req.body;
+  const { email, password, role,skills = [] } = req.body;
   try {
-    const existingUser = await User.find({ email });
-    if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
-    }
+    // const existingUser = await User.find({ email });
+    // if (existingUser) {
+    //   return res.status(400).json({ error: "User already exists" });
+    // }
+    
+    
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, password: hashedPassword, skills });
-
+    const user = await User.create({ email, password: hashedPassword, role,skills });
+    console.log(`user: ${user}`);
+    
     // fire Inngest event for user signup
     await inngest.send({ name: "user/signup", data: { email } });
-
+    
     const token = jwt.sign(
       { _id: user._id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-
+   
+    
     return res.status(201).json({ user, token });
   } catch (error) {
     console.error("Error signing up user:", error.message);

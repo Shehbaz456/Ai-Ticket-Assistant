@@ -3,6 +3,7 @@ import { NonRetriableError } from "inngest";
 import Ticket from "../../models/ticket.js";
 import User from "../../models/user.js";
 import analyzeTicket from "../../utils/ai-Agent.js";
+import { sendEmail } from "../../utils/mailer.js";
 
 export const onTicketCreated = inngest.createFunction(
   { id: "on-ticket-created", retries: 3 },

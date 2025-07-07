@@ -2,6 +2,8 @@ import nodemailer from "nodemailer";
 
 export const sendEmail = async (to, subject, text) => {
   try {
+    console.log("Try to send email");
+    
     const transporter = nodemailer.createTransport({
       host: process.env.MAILTRAP_SMTP_HOST,
       port: process.env.MAILTRAP_SMTP_PORT,
@@ -12,13 +14,6 @@ export const sendEmail = async (to, subject, text) => {
       },
     });
 
-
-    const mailOptions = {
-      from: process.env.MAILTRAP_SMTP_USER,
-      to,
-      subject,
-      text,
-    };
 
     const info = await transporter.sendMail({
       from: "Inngest TMS <noreply@inngest.com>",

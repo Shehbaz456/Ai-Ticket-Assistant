@@ -5,12 +5,15 @@ import { sendEmail } from "../../utils/mailer.js";
 
 
 export const onUserSignup = inngest.createFunction(
-  { id: "on-user-signup" },
+  { id: "on-user-signup",retries:2 },
   { event: "user/signup" },
 
   async ({ event, step }) => {
     try {
       const { email } = event.data;
+      console.log(`email onsignup ${email}`);
+      console.log(`evenr data onsignup  ${event.data}`);
+      
       const user = await step.run("get-user-email", async () => {
         const userObject = await User.findOne({ email });
         if (!userObject) {
@@ -25,10 +28,10 @@ export const onUserSignup = inngest.createFunction(
         \n\n
         Thanks for signin up. we're glad to have you onboard!
         `;
-
         await sendEmail(user.email,subject,message)
       })
-
+      console.log(user.email,subject,message);
+      
       return {success:true}
 
     } catch (error) {

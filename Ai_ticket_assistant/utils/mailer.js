@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-export const sendEmail = async (to, subject, text) => {
+export const sendEmail = async (to, subject, message,html = null) => {
   try {
     console.log("Try to send email");
     
@@ -19,7 +19,8 @@ export const sendEmail = async (to, subject, text) => {
       from: "Inngest TMS <noreply@inngest.com>",
       to,
       subject,
-      text,
+      text:message,
+      html, 
     });
 
   console.log("Message sent:", info.messageId);

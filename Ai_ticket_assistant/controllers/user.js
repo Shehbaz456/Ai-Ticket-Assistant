@@ -7,16 +7,13 @@ import { inngest } from "../inngest/client.js";
 export const signup = async (req, res) => {
   const { email, password, role,skills = [] } = req.body;
   try {
-    // const existingUser = await User.find({ email });
-    // if (existingUser) {
-    //   return res.status(400).json({ error: "User already exists" });
-    // }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "User already exists" });
+    }
     
-    
-
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hashedPassword, role,skills });
-    console.log(`user: ${user}`);
     
     // fire Inngest event for user signup
     await inngest.send({ name: "user/signup", data: { email } });
@@ -26,7 +23,6 @@ export const signup = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-   
     
     return res.status(201).json({ user, token });
   } catch (error) {
@@ -51,6 +47,8 @@ export const login = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+    
+
     return res.status(200).json({ user, token });
   } catch (error) {
     console.error("Error logging in user:", error.message);
@@ -61,13 +59,14 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
+    
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(401).json({ error: "Unauthorized token not found" });
     }
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(401).json({ error: "Unauthorized Access" });
       }
     });
 
@@ -86,9 +85,9 @@ export const updateUser = async (req, res) => {
     if (req.user.role !== "admin" && role) {
       return res.status(403).json({ error: "Forbidden" });
     }
-    if (!email || !skills) {
-      return res.status(400).json({ error: "Email and skills are required" });
-    }
+    // if (!email || !skills) {
+    //   return res.status(400).json({ error: "Email and skills are required" });
+    // }
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { skills: skills.length ? skills : user.skills, email, role },

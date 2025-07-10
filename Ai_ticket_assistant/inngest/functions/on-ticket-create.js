@@ -6,12 +6,13 @@ import analyzeTicket from "../../utils/ai-Agent.js";
 import { sendEmail } from "../../utils/mailer.js";
 
 export const onTicketCreated = inngest.createFunction(
-  { id: "on-ticket-created", retries: 3 },
+  { id: "on-ticket-created", retries: 2 },
   { event: "ticket/created" },
   async ({ event, step }) => {
     try {
       const { ticketId } = event.data;
-
+      console.log(`ticketId ${ticketId}`);
+      
       // fetch the ticket from the database
       const ticket = await step.run("fetch-ticket", async () => {
         const ticketObject = await Ticket.findById(ticketId);
@@ -20,7 +21,8 @@ export const onTicketCreated = inngest.createFunction(
         }
         return ticketObject;
       });
-
+      console.log(`ticket/created : ${ticket}`);
+      
       // update ticket status to IN_PROGRESS
       await step.run("update-ticket-status", async () => {
         await Ticket.findByIdAndUpdate(ticket._id, { status: "TODO" });
@@ -28,7 +30,9 @@ export const onTicketCreated = inngest.createFunction(
 
       // analyze the ticket using AI
       const aiResponse = await analyzeTicket(ticket);
-      if (!aiResponse) {
+      console.log(`Ai response ${aiResponse}`);
+      
+      if (!aiResponse ) {
         throw new NonRetriableError("Failed to analyze ticket");
       }
 
@@ -48,9 +52,10 @@ export const onTicketCreated = inngest.createFunction(
         }
         return skills;
       });
-
+      console.log(`Related Skills ${relatedskills}`);
+      
       const moderator = await step.run("assign-moderators", async () => {
-        const user = await User.findOne({
+        let user = await User.findOne({
           role: "moderator",
           skills: {
             $elemMatch: { $regex: new RegExp(relatedskills.join("|"), "i") },
@@ -64,7 +69,9 @@ export const onTicketCreated = inngest.createFunction(
         });
         return user;
       });
-
+      console.log(`moderator Skills ${moderator}`);
+      console.log("try to send email");
+      
       await step.run("send-email-notification", async () => {
         // send notification to the user who created the ticket
         if (moderator) {

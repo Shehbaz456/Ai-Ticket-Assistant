@@ -15,12 +15,14 @@ export const createTicket = async (req, res) => {
       description,
       createdBy: req.user._id.toString(),
     });
+    console.log(`new ticket  ${newTicket}`);
+    
 
     // Fire Inngest event for ticket creation
     await inngest.send({
       name: "ticket/created",
       data: {
-        id: newTicket._id.toString(),
+        ticketId: newTicket._id.toString(),
         title: newTicket.title,
         description: newTicket.description,
         createdBy: req.user._id.toString(),

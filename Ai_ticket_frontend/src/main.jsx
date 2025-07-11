@@ -19,6 +19,7 @@ createRoot(document.getElementById("root")).render(
           path="/"
           element={
             <CheckAuth protected={true}>
+              <Navbar />
               <Tickets />
             </CheckAuth>
           }
@@ -27,6 +28,7 @@ createRoot(document.getElementById("root")).render(
           path="/tickets/:id"
           element={
             <CheckAuth protected={true}>
+              <Navbar />
               <TicketDetailsPage />
             </CheckAuth>
           }
@@ -51,6 +53,7 @@ createRoot(document.getElementById("root")).render(
           path="/admin"
           element={
             <CheckAuth protected={true}>
+              <Navbar />
               <Admin />
             </CheckAuth>
           }

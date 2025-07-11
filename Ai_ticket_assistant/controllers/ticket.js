@@ -15,7 +15,7 @@ export const createTicket = async (req, res) => {
       description,
       createdBy: req.user._id.toString(),
     });
-    console.log(`new ticket  ${newTicket}`);
+    // console.log(`new ticket  ${newTicket}`);
     
 
     // Fire Inngest event for ticket creation
@@ -28,7 +28,8 @@ export const createTicket = async (req, res) => {
         createdBy: req.user._id.toString(),
       },
     });
-
+    console.log("Ticket created and processing started");
+    
     return res.status(201).json({
       message: "Ticket created and processing started",
       ticket: newTicket,

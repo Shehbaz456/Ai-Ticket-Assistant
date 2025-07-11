@@ -1,5 +1,5 @@
 import { createAgent, gemini } from "@inngest/agent-kit";
-console.log("Gemini API Key:", process.env.GEMINI_API_KEY);
+
 const analyzeTicket = async (ticket) => {
   const supportAgent = createAgent({
     model: gemini({
@@ -31,7 +31,7 @@ Ticket:
 - Description: ${ticket.description}
 `);
 
-console.log("🧠 Full Gemini Response:", response);
+// console.log("🧠 Full Gemini Response:", response);
 
     const raw = response?.output?.[0]?.context || response?.output?.[0]?.content || "";
 

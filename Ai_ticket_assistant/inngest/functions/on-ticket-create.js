@@ -11,8 +11,8 @@ export const onTicketCreated = inngest.createFunction(
   async ({ event, step }) => {
     try {
       const { ticketId } = event.data;
-      console.log(`ticketId ${ticketId}`);
-      
+      // console.log(`ticketId ${ticketId}`);
+
       // fetch the ticket from the database
       const ticket = await step.run("fetch-ticket", async () => {
         const ticketObject = await Ticket.findById(ticketId);
@@ -21,8 +21,9 @@ export const onTicketCreated = inngest.createFunction(
         }
         return ticketObject;
       });
-      console.log(`ticket/created : ${ticket}`);
-      
+
+      // console.log("ticket/created :", JSON.stringify(ticket, null, 2));
+
       // update ticket status to IN_PROGRESS
       await step.run("update-ticket-status", async () => {
         await Ticket.findByIdAndUpdate(ticket._id, { status: "TODO" });
@@ -30,10 +31,13 @@ export const onTicketCreated = inngest.createFunction(
 
       // analyze the ticket using AI
       const aiResponse = await analyzeTicket(ticket);
-      console.log(`Ai response ${aiResponse}`);
-      
-      if (!aiResponse ) {
-        throw new NonRetriableError("Failed to analyze ticket");
+      // console.log(`Ai response ${aiResponse}`);
+      // console.log("Ai response :", JSON.stringify(aiResponse, null, 2));
+
+      if (!aiResponse || aiResponse.relatedSkills.length === 0) {
+        console.warn(
+          "⚠️ AI failed or returned empty skills. Assigning to fallback admin."
+        );
       }
 
       const relatedskills = await step.run("ai-processing", async () => {
@@ -44,6 +48,7 @@ export const onTicketCreated = inngest.createFunction(
               ? "medium"
               : aiResponse.priority,
             helpfulNotes: aiResponse.helpfulNotes,
+            summary:aiResponse.summary,
             status: "IN_PROGRESS",
             relatedSkills: aiResponse.relatedSkills,
             aiResponse: aiResponse.response,
@@ -53,7 +58,7 @@ export const onTicketCreated = inngest.createFunction(
         return skills;
       });
       console.log(`Related Skills ${relatedskills}`);
-      
+
       const moderator = await step.run("assign-moderators", async () => {
         let user = await User.findOne({
           role: "moderator",
@@ -70,8 +75,8 @@ export const onTicketCreated = inngest.createFunction(
         return user;
       });
       console.log(`moderator Skills ${moderator}`);
-      console.log("try to send email");
-      
+      console.log("try to send-email-notification");
+
       await step.run("send-email-notification", async () => {
         // send notification to the user who created the ticket
         if (moderator) {
